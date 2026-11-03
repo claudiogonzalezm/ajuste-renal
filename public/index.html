@@ -242,7 +242,7 @@ $('f').addEventListener('submit',function(ev){ev.preventDefault();marcar();rende
   var c=$('res-c');c.textContent='';var p=document.createElement('p');p.style.margin='0 0 10px';var bb=document.createElement('b');bb.textContent=fmt(r)+' mL/min';p.append('ClCr usado: ',bb,' ('+NOM[sel]+'). TRR: '+trr+'.');c.appendChild(p);var tv=document.createElement('p');tv.className='nota';tv.style.margin='0 0 10px';tv.textContent='Tabla '+TABLA.version+' ('+TABLA.estado.toLowerCase()+'). Verifica cada dosis antes de usarla.';c.appendChild(tv);
   if(msg){var q=document.createElement('p');q.className='msg';q.style.margin='0 0 10px';q.textContent=msg;c.appendChild(q)}
   res.forEach(function(x){c.appendChild(tarjeta(x))});
-  if(arch){var a=document.createElement('p');a.style.margin='0';a.textContent='Archivo: '+arch.nombre+' ('+arch.tipo+'). La lectura de medicamentos se conecta en la etapa 4.';c.appendChild(a)}
+  if(arch){var a=document.createElement('p');a.style.margin='0';a.textContent='Archivo: '+arch.nombre+' ('+arch.tipo+').';c.appendChild(a)}
   $('json').textContent=JSON.stringify(J,null,2);$('res').hidden=false;$('res').scrollIntoView({block:'nearest'});
   registrar(d,{clcr:v,metodo:sel,estable:est.value==='si',tendencia:ten?ten.value:null,trr:trr,medicamentos:meds,fuera:fueraT,origen:origenArch||'lista'})});
 function registrar(d,x){var s=$('reg');s.className='reg';s.textContent='Registrando en Google Sheets…';$('prep').disabled=true;

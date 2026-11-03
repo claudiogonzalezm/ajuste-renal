@@ -117,7 +117,7 @@ app.post('/api/evaluar', limitar, express.json({limit: '50kb'}), async (req, res
 });
 
 app.get('/tabla.js', (_q, res) => res.type('application/javascript').send('var TABLA=' + JSON.stringify(tabla) + ';'));
-app.get('/salud', (_q, res) => res.json({ok:true, tabla:tabla.version}));
+app.get('/salud', (_q, res) => res.json({ok:true, tabla:tabla.version, etapa:4}));
 app.use(express.static(path.join(__dirname, 'public')));
 if (require.main === module) app.listen(process.env.PORT || 3000);
 module.exports = {app, construir, tipoArchivo, leerRespuesta};
