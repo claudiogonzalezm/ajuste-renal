@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ajuste Renal de Antimicrobianos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Hoja de evaluación clínica: formulario a la izquierda, panel de lectura fijo a la derecha */
+:root{--bg:#EDF3F4;--paper:#FFFFFF;--ink:#14323B;--muted:#55707A;--line:#C9D8DC;--accent:#0A5F73;--accent-soft:#DCEEF1;--on-accent:#FFFFFF;--warn:#8A5200;--warn-soft:#FBEFD9;--err:#A32B2B;--err-soft:#FBE6E4;--ok:#1C6B4A;
+--body:"Atkinson Hyperlegible",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1E23;--paper:#172A31;--ink:#E3EEF0;--muted:#9DB4BB;--line:#2F4A52;--accent:#6CCBDC;--accent-soft:#1D3F48;--on-accent:#08242B;--warn:#F2C377;--warn-soft:#40301A;--err:#F5A6A0;--err-soft:#472322;--ok:#7FD8AE;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1E23;--paper:#172A31;--ink:#E3EEF0;--muted:#9DB4BB;--line:#2F4A52;--accent:#6CCBDC;--accent-soft:#1D3F48;--on-accent:#08242B;--warn:#F2C377;--warn-soft:#40301A;--err:#F5A6A0;--err-soft:#472322;--ok:#7FD8AE;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1080px;margin:0 auto;display:grid;gap:20px}
+header{display:grid;gap:6px}
+h1{font-size:1.75rem;line-height:1.2;margin:0;text-wrap:balance}
+.sub{margin:0;color:var(--muted)}
+.aviso{background:var(--warn-soft);color:var(--warn);padding:10px 14px;border-radius:4px;font-weight:700;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+form{display:grid;gap:16px;min-width:0}
+section{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:18px;display:grid;gap:14px;min-width:0}
+h2{font-size:1.1rem;margin:0;display:flex;gap:10px;align-items:baseline}
+h2 span{font:600 .85rem var(--mono);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label.f{display:grid;gap:4px;font-weight:700;font-size:.92rem}
+label.f small{font-weight:400;color:var(--muted)}
+input[type=text],select{width:100%;font:16px var(--body);color:var(--ink);background:var(--paper);border:1px solid var(--muted);border-radius:3px;padding:9px 10px}
+input:focus-visible,select:focus-visible,button:focus-visible,.op:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.campo-err{color:var(--err);font-size:.85rem;font-weight:400;min-height:0}
+input[aria-invalid=true]{border-color:var(--err);background:var(--err-soft)}
+fieldset{border:0;padding:0;margin:0;display:grid;gap:8px;min-width:0}
+legend{font-weight:700;padding:0;margin-bottom:8px}
+.op{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;border:1px solid var(--line);border-radius:3px;padding:10px 12px;cursor:pointer}
+.op input{margin:0;width:18px;height:18px;align-self:center;accent-color:var(--accent)}
+.op:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.op.off{cursor:not-allowed;color:var(--muted);background:transparent;opacity:.75}
+.op b{min-width:0}
+.op .val{font:600 1.02rem var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.op .det{grid-column:2/4;font-size:.85rem;color:var(--muted)}
+.chip{font:600 .75rem var(--mono);background:var(--warn-soft);color:var(--warn);padding:1px 6px;border-radius:3px;margin-left:6px;white-space:nowrap}
+.fila2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.msg{padding:10px 14px;border-radius:3px;background:var(--warn-soft);color:var(--warn);font-weight:700}
+.nota{color:var(--muted);font-size:.9rem;margin:0}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+button{font:700 .95rem var(--body);border-radius:3px;padding:9px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--paper);color:var(--accent)}
+button.pri{background:var(--accent);color:var(--on-accent)}
+button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+button.q{border-color:var(--line);color:var(--muted);padding:8px 10px}
+.med{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:8px;align-items:center;position:relative}
+.med .n{font:600 .9rem var(--mono);color:var(--muted);text-align:right}
+.lista{position:absolute;left:40px;right:0;top:100%;z-index:5;background:var(--paper);border:1px solid var(--muted);border-radius:3px;max-height:220px;overflow:auto;margin:2px 0 0;padding:0;list-style:none}
+.lista li{padding:8px 10px;cursor:pointer}
+.lista li[aria-selected=true],.lista li:hover{background:var(--accent-soft)}
+.lista li.nada{color:var(--muted);cursor:default}
+#meds{display:grid;gap:8px}
+aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:18px;display:grid;gap:12px;min-width:0}
+aside h2{font-size:1rem}
+.lectura{font:600 2.3rem/1.1 var(--mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+.lectura small{font:500 .85rem var(--mono);color:var(--muted)}
+dl{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:0;font-size:.92rem}
+dt{color:var(--muted)}dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+#res[hidden]{display:none}
+#res{display:grid;gap:12px}
+pre{background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:12px;overflow-x:auto;font:500 .82rem/1.45 var(--mono);margin:0;max-height:340px}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#errs{color:var(--err);font-weight:700;margin:0}
+#res-c{display:grid;gap:10px}#res-c>p{margin:0!important}
+.dosis{border:1px solid var(--line);border-radius:3px;padding:12px 14px;display:grid;gap:4px;min-width:0}
+.dosis h3{font-size:1rem;margin:0}.dosis p{margin:0}
+.dosis-t{font-weight:700;font-size:1.08rem;color:var(--accent)}.dosis-t.sin{color:var(--muted)}.dosis-t.alto{color:var(--err)}
+.chip.neutro{background:var(--accent-soft);color:var(--accent)}
+.reg{margin:0;font-weight:700;color:var(--muted)}.reg.ok{color:var(--ok)}.reg.mal{color:var(--err)}
+details summary{cursor:pointer;color:var(--accent);font-weight:700}details pre{margin-top:8px}
+@media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}aside{position:static;order:-1}}
+@media (prefers-reduced-motion:no-preference){.op,button{transition:background-color .12s}}
+</style>
+</head><body><div class="wrap">
+<header>
+  <h1>Ajuste renal de antimicrobianos</h1>
+  <p class="sub">Calcula el aclaramiento de creatinina y prepara la evaluación para el ajuste de dosis. Etapa 3 de 6.</p>
+</header>
+<div class="aviso"><span>Uso docente: ingresa solo datos sintéticos, nunca pacientes reales.</span><button type="button" class="q" id="vaciar">Vaciar formulario</button></div>
+<div class="layout">
+<form id="f" novalidate>
+<section aria-labelledby="s1"><h2 id="s1"><span>1</span>Datos del paciente</h2>
+  <p class="nota" id="ej">Paciente ficticio de ejemplo cargado. Cámbialo o vacía el formulario.</p>
+  <div class="grid">
+    <label class="f">Edad <small>años</small><input type="text" inputmode="decimal" id="edad" autocomplete="off"><span class="campo-err" id="edad-e"></span></label>
+    <label class="f">Peso <small>kg</small><input type="text" inputmode="decimal" id="peso" autocomplete="off"><span class="campo-err" id="peso-e"></span></label>
+    <label class="f">Talla <small>cm</small><input type="text" inputmode="decimal" id="talla" autocomplete="off"><span class="campo-err" id="talla-e"></span></label>
+    <label class="f">Sexo <small>requerido por las fórmulas</small><select id="sexo"><option value="">Elegir</option><option>Femenino</option><option>Masculino</option></select><span class="campo-err" id="sexo-e"></span></label>
+    <label class="f">Creatinina <small>mg/dL</small><input type="text" inputmode="decimal" id="crea" autocomplete="off"><span class="campo-err" id="crea-e"></span></label>
+    <label class="f">Cistatina C <small>mg/L, opcional</small><input type="text" inputmode="decimal" id="cis" autocomplete="off"><span class="campo-err" id="cis-e"></span></label>
+  </div>
+</section>
+<section aria-labelledby="s2"><h2 id="s2"><span>2</span>Aclaramiento de creatinina</h2>
+  <fieldset><legend>¿Cuál aclaramiento de creatinina prefiere usar?</legend><div id="ops" style="display:grid;gap:8px"></div></fieldset>
+  <label class="f" id="manual-w" hidden>Su aclaramiento de recolección de orina <small>mL/min</small><input type="text" inputmode="decimal" id="manual" autocomplete="off"><span class="campo-err" id="manual-e"></span></label>
+</section>
+<section aria-labelledby="s3"><h2 id="s3"><span>3</span>Estabilidad renal</h2>
+  <fieldset><legend>¿Su paciente tiene aclaramiento renal estable?</legend><div class="fila2">
+    <label class="op"><input type="radio" name="estable" value="si" id="est-si"><b>Sí</b></label>
+    <label class="op"><input type="radio" name="estable" value="no" id="est-no"><b>No</b></label></div></fieldset>
+  <fieldset id="tend-w" hidden><legend>¿Cuál es la tendencia de su paciente?</legend>
+    <label class="op"><input type="radio" name="tendencia" value="altos" id="t-a"><b style="grid-column:2/4">Aclaramientos de creatinina más altos en el tiempo</b></label>
+    <label class="op"><input type="radio" name="tendencia" value="bajos" id="t-b"><b style="grid-column:2/4">Aclaramientos de creatinina más bajos en el tiempo</b></label></fieldset>
+</section>
+<section aria-labelledby="s4"><h2 id="s4"><span>4</span>Terapia de reemplazo renal</h2>
+  <label class="f">¿Su paciente está en diálisis o terapia de reemplazo renal?
+  <select id="trr"><option value="">Elegir</option><option>No</option><option>Hemodiálisis intermitente</option><option>TRRC</option><option>SLED</option><option>Diálisis peritoneal</option></select></label>
+  <p class="nota" id="trr-n" hidden>La dosis no se elegirá por ClCr. Se mostrará la nota de TRR de cada fármaco, si la tabla la tiene.</p>
+</section>
+<section aria-labelledby="s5"><h2 id="s5"><span>5</span>Medicamentos</h2>
+  <div class="tabs" role="group" aria-label="Forma de ingreso"><button type="button" id="tab-l" aria-pressed="true">Elegir de la lista</button><button type="button" id="tab-a" aria-pressed="false">Subir receta</button></div>
+  <div id="p-l" style="display:grid;gap:10px"><div id="meds"></div><div><button type="button" id="add">Agregar medicamento</button></div></div>
+  <div id="p-a" hidden style="display:grid;gap:8px">
+    <label class="f">Archivo con la parte de la receta que tiene medicamentos <small>PDF o imagen (JPG, PNG, WEBP), menor a 1 MB</small><input type="file" id="arch" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"><span class="campo-err" id="arch-e"></span></label>
+    <p class="nota">Usa una receta sintética. La lectura del archivo se conecta en la etapa 4.</p>
+  </div>
+</section>
+<div class="acciones"><button class="pri" type="submit" id="prep">Calcular ajuste</button><p id="errs" role="alert"></p></div>
+<section id="res" hidden aria-labelledby="s6"><h2 id="s6"><span>6</span>Ajuste de dosis</h2>
+  <p id="reg" class="reg" role="status"></p><div id="res-c"></div>
+  <details><summary>Ver el JSON que recibirá Make</summary><pre id="json" tabindex="0"></pre><div class="acciones" style="margin-top:8px"><button type="button" id="copiar">Copiar JSON</button><span id="cop" class="nota"></span></div></details>
+</section>
+</form>
+<aside aria-labelledby="sp"><h2 id="sp">Lectura actual</h2>
+  <div class="lectura" id="l-v">—</div>
+  <div class="nota" id="l-m">Elige un aclaramiento</div>
+  <dl id="dl"></dl>
+</aside>
+</div></div>
+<script src="calc.js"></script>
+<script src="cruce.js"></script>
+<script src="tabla.js"></script>
+<script>
+var FARMACOS=Object.keys(TABLA.farmacos);
+var MSG={altos:'Precaución con su ajuste requiere seguimiento diario para evaluar riesgo de infradosificación',bajos:'Precaución con su ajuste requiere seguimiento diario para evaluar riesgo de toxicidad'};
+var LIM={edad:[18,120,'18 y 120 años'],peso:[20,300,'20 y 300 kg'],talla:[100,250,'100 y 250 cm'],crea:[0.1,25,'0,1 y 25 mg/dL'],cis:[0.1,15,'0,1 y 15 mg/L'],manual:[0.1,300,'0,1 y 300 mL/min']};
+var $=function(i){return document.getElementById(i)};
+var fmt=function(x,d){return x.toFixed(d===undefined?1:d).replace('.',',')};
+function num(id){var t=$(id).value.trim().replace(',','.');if(t==='')return null;var n=Number(t);return isFinite(n)?n:NaN}
+function chk(id,req){var v=num(id),L=LIM[id],e=$(id+'-e'),m='';
+  if(v===null){if(req)m='Campo obligatorio'}else if(isNaN(v))m='Ingresa un número';else if(v<L[0]||v>L[1])m='Debe estar entre '+L[2];
+  $(id).setAttribute('aria-invalid',m?'true':'false');e.textContent=$(id).dataset.t?m:'';return m?null:v}
+function datos(mostrar){var o={edad:chk('edad',1),peso:chk('peso',1),talla:chk('talla',1),creatinina:chk('crea',1),cistatina:chk('cis',0),sexo:$('sexo').value};
+  var ok=o.edad!==null&&o.peso!==null&&o.talla!==null&&o.creatinina!==null&&o.sexo!=='';return ok?o:null}
+var sel=null,R=null;
+function opcion(id,nom,val,uni,det,off,chip){var l=document.createElement('label');l.className='op'+(off?' off':'');
+  var i=document.createElement('input');i.type='radio';i.name='clcr';i.value=id;i.id='op-'+id;i.disabled=!!off;i.checked=sel===id&&!off;
+  i.addEventListener('change',function(){sel=id;render()});
+  var b=document.createElement('b');b.textContent=nom;if(chip){var c=document.createElement('span');c.className='chip';c.textContent=chip;b.appendChild(c)}
+  var v=document.createElement('span');v.className='val';v.textContent=val===null?'—':fmt(val)+' '+uni;
+  var d=document.createElement('span');d.className='det';d.textContent=det||'';l.append(i,b,v,d);return l}
+function pintarOps(){var o=$('ops');o.textContent='';var r=R,x=r||{},P=r&&r.preferirCG?'Preferir C-G':'';
+  var a=[['cg','Cockcroft-Gault (peso magro o peso total)',r?r.cg:null,'mL/min',r?(r.usaPesoMagro?'Usa peso magro: '+fmt(r.pesoMagro)+' kg (IMC '+fmt(r.imc)+')':'Usa peso total: '+fmt(r.pesoUsado)+' kg (IMC '+fmt(r.imc)+')'):'Completa los datos del paciente',!r,''],
+  ['ckd','CKD-EPI creatinina (2021)',r?r.ckdCrea:null,'mL/min',r?'VFG '+fmt(r.vfgCrea)+' mL/min/1,73 m², desnormalizada':'',!r,P],
+  ['cys','CKD-EPI crea-cys (2021)',r?r.ckdCys:null,'mL/min',r?(r.ckdCys===null?'Requiere cistatina C':'VFG '+fmt(r.vfgCys)+' mL/min/1,73 m², desnormalizada'):'',!r||r.ckdCys===null,P],
+  ['bis','BIS-1',r?r.bis:null,'mL/min',r?(r.bis===null?'Disponible sobre 70 años':'VFG '+fmt(r.vfgBis)+' mL/min/1,73 m², desnormalizada'):'',!r||r.bis===null,''],
+  ['orina','Usar mi aclaramiento de recolección de orina',null,'mL/min','Lo ingresas tú en mL/min',false,'']];
+  if(sel&&sel!=='orina'&&a.some(function(q){return q[0]===sel&&q[5]}))sel=null;
+  a.forEach(function(q){o.appendChild(opcion.apply(null,q))})}
+function clcr(){if(sel==='orina'){var v=chk('manual',1);return v===null?null:v}
+  if(!R||!sel)return null;return {cg:R.cg,ckd:R.ckdCrea,cys:R.ckdCys,bis:R.bis}[sel]}
+var NOM={cg:'Cockcroft-Gault',ckd:'CKD-EPI creatinina 2021',cys:'CKD-EPI crea-cys 2021',bis:'BIS-1',orina:'Recolección de orina'};
+function render(){var d=datos();R=d?calcularFuncionRenal(d):null;pintarOps();$('manual-w').hidden=sel!=='orina';
+  var v=clcr();$('l-v').innerHTML='';
+  if(v===null||v===undefined){$('l-v').textContent='—';$('l-m').textContent=R?'Elige un aclaramiento':'Completa los datos del paciente'}
+  else{$('l-v').textContent=fmt(redondearClCr(v));var s=document.createElement('small');s.textContent=' mL/min';$('l-v').appendChild(s);$('l-m').textContent=NOM[sel]}
+  var dl=$('dl');dl.textContent='';if(R){[['IMC',fmt(R.imc)+' kg/m²'],['Superficie',fmt(R.superficie,2)+' m²'],['Peso magro',fmt(R.pesoMagro)+' kg']].forEach(function(p){var a=document.createElement('dt');a.textContent=p[0];var b=document.createElement('dd');b.textContent=p[1];dl.append(a,b)})}}
+function tarjeta(x){var w=document.createElement('article');w.className='dosis';var h=document.createElement('h3');h.textContent=x.principio_activo;
+  var chip=function(t,k){var s=document.createElement('span');s.className='chip '+(k||'');s.textContent=t;h.appendChild(s)};
+  if(x.requiere_ajuste==='No')chip('Sin ajuste renal','neutro');if(x.estado==='PROPUESTA')chip('Regla por validar');w.appendChild(h);
+  var d=document.createElement('p');d.className='dosis-t';
+  if(x.modo==='trr'){d.textContent=x.nota_trr||'Sin indicación para TRR en la tabla';if(!x.nota_trr)d.classList.add('sin')}
+  else if(x.dosis){d.textContent=x.dosis;if(/^No (usar|recomendado)/.test(x.dosis))d.classList.add('alto')}
+  else{d.textContent=x.modo==='fuera_de_tabla'?'Sin dato en la tabla':'Sin dosis automática';d.classList.add('sin')}
+  w.appendChild(d);var m=document.createElement('p');m.className='nota';var t=[];
+  if(x.rango)t.push('Rango ClCr '+x.rango+' mL/min');if(x.id_regla)t.push('regla '+x.id_regla);if(x.modo==='trr'&&x.nota_trr)t.push('Nota de la tabla, no por ClCr. Revisa que aplique a '+$('trr').value);
+  if(x.requiere_ajuste==='No')t.push('Se registra que no requiere ajuste');m.textContent=t.join(' · ');w.appendChild(m);
+  if(x.nota&&x.modo!=='trr'){var n=document.createElement('p');n.className='nota';n.textContent='Nota: '+x.nota;w.appendChild(n)}return w}
+/* Buscador de medicamentos */
+var norm=function(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()};var nM=0;
+function filaMed(val){nM++;var w=document.createElement('div');w.className='med';var n=document.createElement('span');n.className='n';
+  var i=document.createElement('input');i.type='text';i.id='med-'+nM;i.value=val||'';i.placeholder='Buscar principio activo';i.setAttribute('role','combobox');i.setAttribute('aria-expanded','false');i.setAttribute('aria-label','Principio activo');i.autocomplete='off';
+  var x=document.createElement('button');x.type='button';x.className='q';x.textContent='Quitar';var u=document.createElement('ul');u.className='lista';u.hidden=true;u.setAttribute('role','listbox');var ac=-1;
+  function abrir(){var q=norm(i.value.trim());var fs=FARMACOS.filter(function(f){return norm(f).indexOf(q)>=0});u.textContent='';ac=-1;
+    if(!fs.length){var e=document.createElement('li');e.className='nada';e.textContent='Sin resultados en la tabla';u.appendChild(e)}
+    fs.forEach(function(f){var l=document.createElement('li');l.textContent=f;l.setAttribute('role','option');l.addEventListener('mousedown',function(ev){ev.preventDefault();i.value=f;cerrar()});u.appendChild(l)});u.hidden=false;i.setAttribute('aria-expanded','true')}
+  function cerrar(){u.hidden=true;i.setAttribute('aria-expanded','false')}
+  i.addEventListener('focus',abrir);i.addEventListener('input',abrir);i.addEventListener('blur',cerrar);
+  i.addEventListener('keydown',function(e){var it=[].slice.call(u.querySelectorAll('[role=option]'));
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(u.hidden)abrir();ac=Math.max(0,Math.min(it.length-1,ac+(e.key==='ArrowDown'?1:-1)));it.forEach(function(l,k){l.setAttribute('aria-selected',k===ac)});if(it[ac])it[ac].scrollIntoView({block:'nearest'})}
+    else if(e.key==='Enter'){if(!u.hidden&&(ac>=0||it.length===1)){e.preventDefault();i.value=(it[ac]||it[0]).textContent;cerrar()}else if(!u.hidden)e.preventDefault()}else if(e.key==='Escape')cerrar()});
+  x.addEventListener('click',function(){w.remove();if(!$('meds').children.length)filaMed();numerar()});
+  w.append(n,i,x,u);$('meds').appendChild(w);numerar();return i}
+function numerar(){[].forEach.call($('meds').children,function(w,k){w.querySelector('.n').textContent=k+1})}
+var modo='lista';function tab(m){modo=m;$('tab-l').setAttribute('aria-pressed',m==='lista');$('tab-a').setAttribute('aria-pressed',m==='archivo');$('p-l').hidden=m!=='lista';$('p-a').hidden=m!=='archivo'}
+var TIPOS={pdf:'pdf',jpg:'imagen',jpeg:'imagen',png:'imagen',webp:'imagen'};
+function archivo(){var f=$('arch').files[0],e=$('arch-e');e.textContent='';if(!f)return null;var x=f.name.split('.').pop().toLowerCase();
+  if(!TIPOS[x]){e.textContent='Formato no permitido. Usa PDF, JPG, PNG o WEBP.';return null}
+  if(f.size>=1048576){e.textContent='El archivo pesa '+fmt(f.size/1048576,2)+' MB. Debe ser menor a 1 MB.';return null}
+  return {nombre:f.name,tipo:TIPOS[x],bytes:f.size}}
+function marcar(){['edad','peso','talla','crea','cis','manual'].forEach(function(i){$(i).dataset.t='1'})}
+function trendSync(){var no=$('est-no').checked;$('tend-w').hidden=!no;if(!no){$('t-a').checked=$('t-b').checked=false}}
+['edad','peso','talla','sexo','crea','cis','manual'].forEach(function(i){var el=$(i);el.addEventListener('input',function(){if(i==='edad'||i==='peso'||i==='talla'||i==='crea'||i==='cis'||i==='manual')el.dataset.t=el.dataset.t||'';$('ej').hidden=true;render()});el.addEventListener('blur',function(){if(i!=='sexo'){el.dataset.t='1';render()}})});
+$('est-si').addEventListener('change',trendSync);$('est-no').addEventListener('change',trendSync);
+$('trr').addEventListener('change',function(){var v=$('trr').value;$('trr-n').hidden=!v||v==='No'});
+$('tab-l').addEventListener('click',function(){tab('lista')});$('tab-a').addEventListener('click',function(){tab('archivo')});
+$('add').addEventListener('click',function(){filaMed().focus()});$('arch').addEventListener('change',archivo);
+$('vaciar').addEventListener('click',function(){['edad','peso','talla','crea','cis','manual'].forEach(function(i){$(i).value='';delete $(i).dataset.t;$(i).removeAttribute('aria-invalid');$(i+'-e').textContent=''});$('sexo').value='';$('trr').value='';$('trr-n').hidden=true;sel=null;$('est-si').checked=$('est-no').checked=false;trendSync();$('meds').textContent='';filaMed();$('arch').value='';$('arch-e').textContent='';tab('lista');$('res').hidden=true;$('errs').textContent='';$('ej').hidden=true;render()});
+$('f').addEventListener('submit',function(ev){ev.preventDefault();marcar();render();var E=[],d=datos(),v=clcr();
+  if(!d)E.push('datos del paciente');if($('cis').value.trim()&&chk('cis',0)===null)E.push('cistatina C');
+  if(!sel||v===null||v===undefined)E.push('aclaramiento');
+  var est=document.querySelector('[name=estable]:checked'),ten=document.querySelector('[name=tendencia]:checked');
+  if(!est)E.push('estabilidad renal');else if(est.value==='no'&&!ten)E.push('tendencia');
+  if(!$('trr').value)E.push('diálisis');
+  var meds=[],arch=null,fuera=[];
+  if(modo==='lista'){[].forEach.call($('meds').querySelectorAll('input'),function(i){var t=i.value.trim();if(!t)return;var m=FARMACOS.filter(function(f){return norm(f)===norm(t)})[0];if(!m)fuera.push(t);else if(meds.indexOf(m)<0)meds.push(m)});if(fuera.length)E.push('elegir de la lista: '+fuera.join(', '));else if(!meds.length)E.push('al menos un medicamento')}
+  else{arch=archivo();if(!arch)E.push('archivo válido')}
+  if(E.length){$('errs').textContent='Falta revisar: '+E.join('; ')+'.';$('res').hidden=true;return}
+  $('errs').textContent='';var r=redondearClCr(v);var enviar=true;var msg=est.value==='no'?MSG[ten.value]:null;var trr=$('trr').value;var res=cruzarMedicamentos(v,trr,meds,TABLA);
+  var J={origen:modo,paciente:{edad:d.edad,peso_kg:d.peso,talla_cm:d.talla,sexo:d.sexo,creatinina_mg_dl:d.creatinina,cistatina_mg_l:d.cistatina},
+  funcion_renal:{metodo:NOM[sel],clcr_ml_min:r,estable:est.value==='si',tendencia:ten?ten.value:null,mensaje:msg,trr:trr},tabla_version:TABLA.version,medicamentos:res,archivo:arch};
+  var c=$('res-c');c.textContent='';var p=document.createElement('p');p.style.margin='0 0 10px';var bb=document.createElement('b');bb.textContent=fmt(r)+' mL/min';p.append('ClCr usado: ',bb,' ('+NOM[sel]+'). TRR: '+trr+'.');c.appendChild(p);var tv=document.createElement('p');tv.className='nota';tv.style.margin='0 0 10px';tv.textContent='Tabla '+TABLA.version+' ('+TABLA.estado.toLowerCase()+'). Verifica cada dosis antes de usarla.';c.appendChild(tv);
+  if(msg){var q=document.createElement('p');q.className='msg';q.style.margin='0 0 10px';q.textContent=msg;c.appendChild(q)}
+  res.forEach(function(x){c.appendChild(tarjeta(x))});
+  if(arch){var a=document.createElement('p');a.style.margin='0';a.textContent='Archivo: '+arch.nombre+' ('+arch.tipo+'). La lectura de medicamentos se conecta en la etapa 4.';c.appendChild(a)}
+  $('json').textContent=JSON.stringify(J,null,2);$('res').hidden=false;$('res').scrollIntoView({block:'nearest'});
+  if(modo==='lista')registrar(d,{clcr:v,metodo:sel,estable:est.value==='si',tendencia:ten?ten.value:null,trr:trr,medicamentos:meds})});
+function registrar(d,x){var s=$('reg');s.className='reg';s.textContent='Registrando en Google Sheets…';$('prep').disabled=true;
+  fetch('/api/evaluar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paciente:d,seleccion:x})})
+  .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+  .then(function(o){if(!o.ok)throw new Error(o.j.error||'No se pudo registrar');s.className='reg ok';s.textContent='Registrado como '+o.j.correlativo+' ('+o.j.fecha+')'})
+  .catch(function(e){s.className='reg mal';s.textContent=(e.message||'No se pudo registrar')+'. El ajuste en pantalla sigue visible, pero no quedó guardado.'})
+  .then(function(){$('prep').disabled=false})}
+$('copiar').addEventListener('click',function(){var t=$('json').textContent;var fin=function(m){$('cop').textContent=m};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){fin('Copiado')},function(){fin('Selecciona el texto y cópialo')})}else fin('Selecciona el texto y cópialo')});
+/* Ejemplo ficticio inicial */
+$('edad').value='60';$('peso').value='90';$('talla').value='160';$('sexo').value='Femenino';$('crea').value='1,0';sel='cg';
+filaMed('Meropenem');render();
+</script>
+
+</body></html>
