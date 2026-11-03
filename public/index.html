@@ -71,6 +71,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:
 .dosis-t{font-weight:700;font-size:1.08rem;color:var(--accent)}.dosis-t.sin{color:var(--muted)}.dosis-t.alto{color:var(--err)}
 .chip.neutro{background:var(--accent-soft);color:var(--accent)}
 .reg{margin:0;font-weight:700;color:var(--muted)}.reg.ok{color:var(--ok)}.reg.mal{color:var(--err)}
+.fuera{display:flex;flex-wrap:wrap;gap:8px}.fuera span{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:3px;padding:3px 4px 3px 10px}.fuera button{padding:2px 8px}#prev{max-height:260px;max-width:100%;border:1px solid var(--line);border-radius:3px}
 details summary{cursor:pointer;color:var(--accent);font-weight:700}details pre{margin-top:8px}
 @media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}aside{position:static;order:-1}}
 @media (prefers-reduced-motion:no-preference){.op,button{transition:background-color .12s}}
@@ -78,7 +79,7 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}details pre{m
 </head><body><div class="wrap">
 <header>
   <h1>Ajuste renal de antimicrobianos</h1>
-  <p class="sub">Calcula el aclaramiento de creatinina y prepara la evaluación para el ajuste de dosis. Etapa 3 de 6.</p>
+  <p class="sub">Calcula el aclaramiento de creatinina y prepara la evaluación para el ajuste de dosis. Etapa 4 de 6.</p>
 </header>
 <div class="aviso"><span>Uso docente: ingresa solo datos sintéticos, nunca pacientes reales.</span><button type="button" class="q" id="vaciar">Vaciar formulario</button></div>
 <div class="layout">
@@ -113,10 +114,10 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}details pre{m
 </section>
 <section aria-labelledby="s5"><h2 id="s5"><span>5</span>Medicamentos</h2>
   <div class="tabs" role="group" aria-label="Forma de ingreso"><button type="button" id="tab-l" aria-pressed="true">Elegir de la lista</button><button type="button" id="tab-a" aria-pressed="false">Subir receta</button></div>
-  <div id="p-l" style="display:grid;gap:10px"><div id="meds"></div><div><button type="button" id="add">Agregar medicamento</button></div></div>
+  <div id="p-l" style="display:grid;gap:10px"><p id="rev" class="msg" hidden></p><div id="meds"></div><div id="fuera-w" hidden><p class="nota" style="margin:0 0 6px">No están en la tabla. Se registran sin dosis:</p><div id="fuera" class="fuera"></div></div><div><button type="button" id="add">Agregar medicamento</button></div></div>
   <div id="p-a" hidden style="display:grid;gap:8px">
     <label class="f">Archivo con la parte de la receta que tiene medicamentos <small>PDF o imagen (JPG, PNG, WEBP), menor a 1 MB</small><input type="file" id="arch" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"><span class="campo-err" id="arch-e"></span></label>
-    <p class="nota">Usa una receta sintética. La lectura del archivo se conecta en la etapa 4.</p>
+    <img id="prev" alt="Vista previa de la receta" hidden><div class="acciones"><button type="button" id="leer">Leer receta</button><span class="nota" id="leer-e" role="status"></span></div><p class="nota">Usa una receta sintética. Gemini propone la lista y tú la revisas antes de calcular.</p>
   </div>
 </section>
 <div class="acciones"><button class="pri" type="submit" id="prep">Calcular ajuste</button><p id="errs" role="alert"></p></div>
@@ -201,6 +202,7 @@ var TIPOS={pdf:'pdf',jpg:'imagen',jpeg:'imagen',png:'imagen',webp:'imagen'};
 function archivo(){var f=$('arch').files[0],e=$('arch-e');e.textContent='';if(!f)return null;var x=f.name.split('.').pop().toLowerCase();
   if(!TIPOS[x]){e.textContent='Formato no permitido. Usa PDF, JPG, PNG o WEBP.';return null}
   if(f.size>=1048576){e.textContent='El archivo pesa '+fmt(f.size/1048576,2)+' MB. Debe ser menor a 1 MB.';return null}
+  if(!f.size){e.textContent='El archivo está vacío.';return null}
   return {nombre:f.name,tipo:TIPOS[x],bytes:f.size}}
 function marcar(){['edad','peso','talla','crea','cis','manual'].forEach(function(i){$(i).dataset.t='1'})}
 function trendSync(){var no=$('est-no').checked;$('tend-w').hidden=!no;if(!no){$('t-a').checked=$('t-b').checked=false}}
@@ -208,8 +210,22 @@ function trendSync(){var no=$('est-no').checked;$('tend-w').hidden=!no;if(!no){$
 $('est-si').addEventListener('change',trendSync);$('est-no').addEventListener('change',trendSync);
 $('trr').addEventListener('change',function(){var v=$('trr').value;$('trr-n').hidden=!v||v==='No'});
 $('tab-l').addEventListener('click',function(){tab('lista')});$('tab-a').addEventListener('click',function(){tab('archivo')});
-$('add').addEventListener('click',function(){filaMed().focus()});$('arch').addEventListener('change',archivo);
-$('vaciar').addEventListener('click',function(){['edad','peso','talla','crea','cis','manual'].forEach(function(i){$(i).value='';delete $(i).dataset.t;$(i).removeAttribute('aria-invalid');$(i+'-e').textContent=''});$('sexo').value='';$('trr').value='';$('trr-n').hidden=true;sel=null;$('est-si').checked=$('est-no').checked=false;trendSync();$('meds').textContent='';filaMed();$('arch').value='';$('arch-e').textContent='';tab('lista');$('res').hidden=true;$('errs').textContent='';$('ej').hidden=true;render()});
+$('add').addEventListener('click',function(){filaMed().focus()});
+var origenArch=null,fueraT=[];
+function pintarFuera(){var w=$('fuera');w.textContent='';$('fuera-w').hidden=!fueraT.length;fueraT.forEach(function(n,i){var s=document.createElement('span');s.textContent=n;var b=document.createElement('button');b.type='button';b.className='q';b.textContent='Quitar';b.setAttribute('aria-label','Quitar '+n);b.addEventListener('click',function(){fueraT.splice(i,1);pintarFuera()});s.appendChild(b);w.appendChild(s)})}
+$('arch').addEventListener('change',function(){var a=archivo(),f=$('arch').files[0],p=$('prev');$('leer-e').textContent='';p.hidden=true;if(p.src)URL.revokeObjectURL(p.src);if(a&&a.tipo==='imagen'){p.src=URL.createObjectURL(f);p.hidden=false}});
+$('leer').addEventListener('click',function(){var a=archivo(),s=$('leer-e');if(!a){if(!$('arch').files[0])s.textContent='Elige un archivo primero.';return}
+  var f=$('arch').files[0],rd=new FileReader();s.textContent='Leyendo con Gemini…';$('leer').disabled=true;
+  rd.onerror=function(){s.textContent='No se pudo abrir el archivo.';$('leer').disabled=false};
+  rd.onload=function(){fetch('/api/leer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({datos_b64:String(rd.result).split(',')[1]})})
+   .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+   .then(function(o){if(!o.ok)throw new Error(o.j.error);var j=o.j;
+     if(!j.legible||(!j.medicamentos.length&&!j.fuera.length)){s.textContent='No se pudo leer medicamentos en este archivo. Prueba con otro o usa la lista.';return}
+     origenArch=j.tipo;fueraT=j.fuera;$('meds').textContent='';j.medicamentos.forEach(function(m){filaMed(m)});if(!j.medicamentos.length)filaMed();pintarFuera();tab('lista');
+     $('rev').hidden=false;$('rev').textContent='Gemini propuso esta lista. Compárala con la receta y corrígela antes de calcular.';s.textContent=''})
+   .catch(function(e){s.textContent=(e.message||'No se pudo leer el archivo')+'.'})
+   .then(function(){$('leer').disabled=false})};rd.readAsDataURL(f)});
+$('vaciar').addEventListener('click',function(){['edad','peso','talla','crea','cis','manual'].forEach(function(i){$(i).value='';delete $(i).dataset.t;$(i).removeAttribute('aria-invalid');$(i+'-e').textContent=''});$('sexo').value='';$('trr').value='';$('trr-n').hidden=true;sel=null;$('est-si').checked=$('est-no').checked=false;trendSync();$('meds').textContent='';filaMed();$('arch').value='';$('arch-e').textContent='';$('leer-e').textContent='';$('prev').hidden=true;origenArch=null;fueraT=[];pintarFuera();$('rev').hidden=true;tab('lista');$('res').hidden=true;$('errs').textContent='';$('ej').hidden=true;render()});
 $('f').addEventListener('submit',function(ev){ev.preventDefault();marcar();render();var E=[],d=datos(),v=clcr();
   if(!d)E.push('datos del paciente');if($('cis').value.trim()&&chk('cis',0)===null)E.push('cistatina C');
   if(!sel||v===null||v===undefined)E.push('aclaramiento');
@@ -217,18 +233,18 @@ $('f').addEventListener('submit',function(ev){ev.preventDefault();marcar();rende
   if(!est)E.push('estabilidad renal');else if(est.value==='no'&&!ten)E.push('tendencia');
   if(!$('trr').value)E.push('diálisis');
   var meds=[],arch=null,fuera=[];
-  if(modo==='lista'){[].forEach.call($('meds').querySelectorAll('input'),function(i){var t=i.value.trim();if(!t)return;var m=FARMACOS.filter(function(f){return norm(f)===norm(t)})[0];if(!m)fuera.push(t);else if(meds.indexOf(m)<0)meds.push(m)});if(fuera.length)E.push('elegir de la lista: '+fuera.join(', '));else if(!meds.length)E.push('al menos un medicamento')}
-  else{arch=archivo();if(!arch)E.push('archivo válido')}
+  if(modo==='lista'){[].forEach.call($('meds').querySelectorAll('input'),function(i){var t=i.value.trim();if(!t)return;var m=FARMACOS.filter(function(f){return norm(f)===norm(t)})[0];if(!m)fuera.push(t);else if(meds.indexOf(m)<0)meds.push(m)});if(fuera.length)E.push('elegir de la lista: '+fuera.join(', '));else if(!meds.length&&!fueraT.length)E.push('al menos un medicamento')}
+  else E.push('leer la receta con el botón Leer receta')
   if(E.length){$('errs').textContent='Falta revisar: '+E.join('; ')+'.';$('res').hidden=true;return}
-  $('errs').textContent='';var r=redondearClCr(v);var enviar=true;var msg=est.value==='no'?MSG[ten.value]:null;var trr=$('trr').value;var res=cruzarMedicamentos(v,trr,meds,TABLA);
-  var J={origen:modo,paciente:{edad:d.edad,peso_kg:d.peso,talla_cm:d.talla,sexo:d.sexo,creatinina_mg_dl:d.creatinina,cistatina_mg_l:d.cistatina},
+  $('errs').textContent='';var r=redondearClCr(v);var enviar=true;var msg=est.value==='no'?MSG[ten.value]:null;var trr=$('trr').value;var res=cruzarMedicamentos(v,trr,meds.concat(fueraT),TABLA);
+  var J={origen:origenArch||'lista',paciente:{edad:d.edad,peso_kg:d.peso,talla_cm:d.talla,sexo:d.sexo,creatinina_mg_dl:d.creatinina,cistatina_mg_l:d.cistatina},
   funcion_renal:{metodo:NOM[sel],clcr_ml_min:r,estable:est.value==='si',tendencia:ten?ten.value:null,mensaje:msg,trr:trr},tabla_version:TABLA.version,medicamentos:res,archivo:arch};
   var c=$('res-c');c.textContent='';var p=document.createElement('p');p.style.margin='0 0 10px';var bb=document.createElement('b');bb.textContent=fmt(r)+' mL/min';p.append('ClCr usado: ',bb,' ('+NOM[sel]+'). TRR: '+trr+'.');c.appendChild(p);var tv=document.createElement('p');tv.className='nota';tv.style.margin='0 0 10px';tv.textContent='Tabla '+TABLA.version+' ('+TABLA.estado.toLowerCase()+'). Verifica cada dosis antes de usarla.';c.appendChild(tv);
   if(msg){var q=document.createElement('p');q.className='msg';q.style.margin='0 0 10px';q.textContent=msg;c.appendChild(q)}
   res.forEach(function(x){c.appendChild(tarjeta(x))});
   if(arch){var a=document.createElement('p');a.style.margin='0';a.textContent='Archivo: '+arch.nombre+' ('+arch.tipo+'). La lectura de medicamentos se conecta en la etapa 4.';c.appendChild(a)}
   $('json').textContent=JSON.stringify(J,null,2);$('res').hidden=false;$('res').scrollIntoView({block:'nearest'});
-  if(modo==='lista')registrar(d,{clcr:v,metodo:sel,estable:est.value==='si',tendencia:ten?ten.value:null,trr:trr,medicamentos:meds})});
+  registrar(d,{clcr:v,metodo:sel,estable:est.value==='si',tendencia:ten?ten.value:null,trr:trr,medicamentos:meds,fuera:fueraT,origen:origenArch||'lista'})});
 function registrar(d,x){var s=$('reg');s.className='reg';s.textContent='Registrando en Google Sheets…';$('prep').disabled=true;
   fetch('/api/evaluar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paciente:d,seleccion:x})})
   .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
